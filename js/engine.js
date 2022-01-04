@@ -596,7 +596,7 @@ class Main {
 
             // Draw_Text(this.ctx, `Lasers: ${this.lasers.length}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
 
-            Draw_Text(this.ctx, `Touch: ${this.touchEvent}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
+            // Draw_Text(this.ctx, `Touch: ${this.touchEvent}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
         }
     }
 
