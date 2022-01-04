@@ -101,7 +101,123 @@ class Controller {
         this.down = false;
         this.jump = false;
         this.shoot = false;
+        this.pos = {x: 0, y: 0};
+        this.lastPos = {x: 0, y: 0};
 
+        this.touchListener = function(event) {
+            event.preventDefault();
+            this.touch_state = (event.type === "touchstart")?true:false;
+
+            if (main.players[0]) {
+                this.pos = {x: main.players[0].pos.x + main.players[0].size.w*0.5, y: main.players[0].pos.y};
+            } else {
+                this.pos = {x: 0, y: 0};
+            }
+
+            if (event.touches[0] && event.touches[0].clientX) {
+                this.pos.x = event.touches[0].clientX;
+            // } else {
+            //     this.pos.x = 0;
+            }
+
+            if (event.touches[0] && event.touches[0].clientY) {
+                this.pos.y = event.touches[0].clientY;
+            // } else {
+            //     this.pos.y = 0;
+            }
+
+            // START ---------------------------------------------------------------
+
+            let bounds = canvas.getBoundingClientRect();
+
+            // get the mouse coordinates, subtract the canvas top left and any scrolling
+            if (event.touches[0]) {
+                this.pos.x = event.touches[0].clientX - bounds.left - scrollX;
+                this.pos.y = event.touches[0].clientY - bounds.top - scrollY;
+            // }
+
+                // first normalize the mouse coordinates from 0 to 1 (0,0) top left
+                // off canvas and (1,1) bottom right by dividing by the bounds width and height
+                this.pos.x /= bounds.width; 
+                this.pos.y /= bounds.height; 
+
+                // then scale to canvas coordinates by multiplying the normalized coords with the canvas resolution
+                this.pos.x *= canvas.width;
+                this.pos.y *= canvas.height;
+
+            // Center Mouse Bounds
+            // this.pos.x = this.pos.x - main.mouse.size.w * 0.5;
+            // this.pos.y = this.pos.y - main.mouse.size.h * 0.5;
+            }
+
+
+            // END ---------------------------------------------------------------
+
+            if (main.players[0]) {
+                if (this.pos.x > main.players[0].pos.x + main.players[0].size.w*0.5 + 10) {
+                    // main.key_right = true;
+                    // main.key_left = false;
+                    main.players[0].pos.x = this.pos.x - main.players[0].size.w*0.5;
+                    // console.log("Greater");
+                } else if (this.pos.x < main.players[0].pos.x + main.players[0].size.w*0.5 - 10) {
+                    main.players[0].pos.x = this.pos.x - main.players[0].size.w*0.5;
+                    // main.key_right = false;
+                    // main.key_left = true;
+                    // console.log("Less");
+                // } else if (this.pos.x > main.players[0].pos.x + main.players[0].size.w*0.5 + 10 || this.pos.x < main.players[0].pos.x + main.players[0].size.w*0.5 - 10) {
+                    // main.key_right = false;
+                    // main.key_left = false;
+                    // main.players[0].drag = 100;
+                    // main.players[0].acceleration = 100;
+
+                    // main.players[0].pos.x = this.pos.x;
+                // } else {
+                //     main.key_right = false;
+                //     main.key_left = false;
+                }
+            }
+            
+            switch(event.type) {
+                case "touchstart":
+                    this.shoot = this.touch_state;
+                    main.mouse.pressed = this.touch_state;
+                    main.key_shoot = this.touch_state;
+                    break;
+
+                case "touchend":
+                    this.shoot = this.touch_state;
+                    main.mouse.pressed = this.touch_state;
+                    main.key_shoot = this.touch_state;
+                    // main.players[0].pos.x = this.pos.x - main.players[0].size.w*0.5;
+                    // console.log(this.pos.x);
+                    // main.key_left = false;
+                    // main.key_right = false;
+                    // console.log(main.key_left);
+                    break;
+            }
+        }
+
+
+        this.mouseListener = function(event) {
+            event.preventDefault();
+            this.mouse_state = (event.type === "mousedown")?true:false;
+
+            switch(event.type) {
+                case "mousedown":
+                    this.shoot = this.mouse_state;
+                    main.mouse.pressed = this.mouse_state;
+                    main.key_shoot = this.mouse_state;
+                    break;
+
+                case "mouseup":
+                    this.shoot = this.mouse_state;
+                    main.mouse.pressed = this.mouse_state;
+                    main.key_shoot = this.mouse_state;
+                    break;
+            }
+        }
+
+        
         this.keyListener = function(event) {
             this.key_state = (event.type === "keydown")?true:false;
 
@@ -186,7 +302,7 @@ class Player {
     }
 
     init() {
-        console.log("Pushed Player");
+        // console.log("Pushed Player");
     }
 
     draw() {
@@ -414,13 +530,20 @@ class Main {
         this.key_down = false;
         this.key_jump = false;
         this.key_shoot = false;
+
+        this.mouse = {
+            pos: {x: 0, y: 0},
+            size: {w: 0.2, h: 0.2},
+            fingers: 0,
+            pressed: false
+        }
     }
 
     init() {
         Screen_Init(this, canvas);
         Screen_Resize(this, this.ctx, canvas);
 
-        console.log("Loaded Main");
+        // console.log("Loaded Main");
     }
 
     reset_game() {
@@ -454,7 +577,7 @@ class Main {
             }
         }
 
-        console.log("Reset_Game");
+        // console.log("Reset_Game");
     }
 
     draw() {
@@ -472,6 +595,8 @@ class Main {
             this.players.forEach(ob => ob.draw());
 
             // Draw_Text(this.ctx, `Lasers: ${this.lasers.length}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
+
+            Draw_Text(this.ctx, `Touch: ${this.touchEvent}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
         }
     }
 
@@ -548,9 +673,16 @@ window.addEventListener('load', (e) => {
     // Update loop ---------------------------------------
     const Input = new Controller(main);
 
-    // Input Events
-    // Input.Move(game);
-    // Input.Leave(game);
+    // Touch
+    window.addEventListener('touchstart', Input.touchListener, { passive: false });
+    window.addEventListener('touchend', Input.touchListener, { passive: false });
+    window.addEventListener('touchmove', Input.touchListener, { passive: false });
+
+    // Mouse
+    window.addEventListener('mousedown', Input.mouseListener, { passive: false });
+    window.addEventListener('mouseup', Input.mouseListener, { passive: false });
+
+    // Keyboard
     window.addEventListener("keydown", Input.keyListener);
     window.addEventListener("keyup", Input.keyListener);
     
@@ -571,4 +703,6 @@ window.addEventListener('load', (e) => {
     }
     animate();
 });
+
+
 
