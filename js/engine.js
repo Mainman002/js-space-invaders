@@ -459,11 +459,11 @@ class Main {
 
     draw() {
         if (this.game_state === "MainMenu") {
-            Draw_Text(this.ctx, `Press Enter to Play`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
+            Draw_Text(this.ctx, `Press Spacebar to Play`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
         }
 
         if (this.game_state === "GameOver") {
-            Draw_Text(this.ctx, `Press Enter to Play Again`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
+            Draw_Text(this.ctx, `Press Spacebar to Play Again`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
         }
 
         if (this.game_state === "Game") {
@@ -471,7 +471,7 @@ class Main {
             this.lasers.forEach(ob => ob.draw());
             this.players.forEach(ob => ob.draw());
 
-            Draw_Text(this.ctx, `Lasers: ${this.lasers.length}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
+            // Draw_Text(this.ctx, `Lasers: ${this.lasers.length}`, 'left', null, {x: 8, y:18}, 16, 'White', 1);
         }
     }
 
