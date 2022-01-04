@@ -6,7 +6,7 @@ A Space Invaders "clone" made in Vanilla JS.
 
 ### Gameplay Instructions
 * A,D or Left / Right Arrow Keys to move
-* W or UP Arrow Keys to shoot lasers
+* W or UP Arrow or Spacebar Keys to shoot lasers
 * (Shoot while in menus to Continue) 
 * Avoid letting the enemies reach the bottom of the screen
 * Don't let the enemies collide with you or it's Game Over
