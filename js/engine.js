@@ -582,11 +582,11 @@ class Main {
 
     draw() {
         if (this.game_state === "MainMenu") {
-            Draw_Text(this.ctx, `Press Spacebar to Play`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
+            Draw_Text(this.ctx, `Press Spacebar or Tap Screen to Play`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
         }
 
         if (this.game_state === "GameOver") {
-            Draw_Text(this.ctx, `Press Spacebar to Play Again`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
+            Draw_Text(this.ctx, `Press Spacebar or Tap Screen to Play Again`, `center`, null, {x: canvas.width*0.5, y: canvas.height*0.5}, 20, `White`, 1);
         }
 
         if (this.game_state === "Game") {
