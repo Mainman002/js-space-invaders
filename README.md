@@ -12,4 +12,5 @@ A Space Invaders "clone" made in Vanilla JS.
 * Don't let the enemies collide with you or it's Game Over
 * Have Fun :)
 
-![JS_Invaders_Clone_Splash](https://user-images.githubusercontent.com/11281480/148013386-f3f8f0e0-1898-4e59-a133-d931cd54d809.png)
+![JS_Invaders_Clone_Splash_03](https://user-images.githubusercontent.com/11281480/148158778-2c7d88f4-7aa8-41f7-a05c-4564ea485067.png)
+
