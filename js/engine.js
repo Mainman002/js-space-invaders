@@ -5,6 +5,20 @@ function Random_Num(_min, _max) {
 }
 
 
+// Used to initialize project images
+const Image_Loader_Init = function (image_dict) {
+    this.image = image_dict;
+}
+
+
+// Used on objects to display images
+const Image_Loader_Load = function (src) {
+  const image = new Image;
+  image.src = src;
+  return image;
+}
+
+
 function Draw_Text(_ctx, _text, _align, _font, _pos, _size, _color, _a) {
     _ctx.globalAlpha = _a;
     _ctx.textAlign = _align;
@@ -27,6 +41,32 @@ function Rect(_ctx, _pos, _size, _color, _a){
     _ctx.fillRect(_pos.x, _pos.y, _size.w, _size.h);
     _ctx.globalAlpha = 1;
 }
+
+
+const Draw_Image = function (_ctx, _image, _frame, _spriteSize, _pos, _size, _a) {
+    _ctx.globalAlpha = _a;
+  
+    _ctx.save();
+    _ctx.translate(_pos.x, _pos.y);
+    // _ctx.rotate(_rot);
+  
+    _ctx.drawImage(_image, 
+    _frame.x, _frame.y, _spriteSize.w, _spriteSize.h, 
+    _pos.x-_pos.x-_size.w * 0.5, _pos.y-_pos.y-_size.h * 0.5, 
+    _size.w, _size.h);
+  
+    _ctx.restore();
+    _ctx.globalAlpha = 1.0;
+  }
+  
+  
+  const Draw_Image_Simple = function (_ctx, _image, _pos, _size, _a) {
+    _ctx.globalAlpha = _a;
+  
+    _ctx.drawImage(_image, 
+    _pos.x, _pos.y, _size.w, _size.h);
+    _ctx.globalAlpha = 1.0;
+  }
 
 
 // Checks if ob_a (Mouse) + Size is inside in ob_b (Button, Tower, Enemy, etc)
@@ -65,7 +105,7 @@ function Screen_Resize(main, _ctx, _canvas){
 
     const aspect = aspectList.box;
 
-    const img_smooth = true;
+    const img_smooth = false;
     let w = window.innerWidth;
     let h = w * (aspect.h / aspect.w);
     
@@ -285,6 +325,7 @@ class Controller {
 class Player {
     constructor(main, pos, size, color) {
         this.main = main;
+        this.image = main.images.players;
         this.states = [];
         this.currentState = this.states[0];
         this.state = 0;
@@ -306,7 +347,8 @@ class Player {
     }
 
     draw() {
-        Rect(this.main.ctx, this.pos, this.size, this.color, 1);
+        // Rect(this.main.ctx, this.pos, this.size, this.color, 1);
+        Draw_Image_Simple(this.main.ctx, this.image, this.pos, this.size);
     }
 
     update(dt) {
@@ -466,8 +508,10 @@ class Laser {
 
 
 class Block {
-    constructor(main, pos, size, hp) {
+    constructor(main, pos, size, frame, hp) {
         this.main = main;
+        this.image = main.images.enemies;
+        this.frame = frame;
         this.health = hp;
         this.dir = 1;
         this.pos = pos;
@@ -481,11 +525,13 @@ class Block {
     }
 
     draw() {
-        Rect(this.main.ctx, this.pos, this.size, this.main.colors[this.health], 1);
+        // Rect(this.main.ctx, this.pos, this.size, this.main.colors[this.health], 1);
+        // Draw_Image_Simple(this.main.ctx, this.image, this.pos, this.size);
+        Draw_Image(this.main.ctx, this.image, {x: 16*this.health, y: 8*this.frame.y}, {w: 16, h: 8}, {x: this.pos.x + this.size.w*0.5, y: this.pos.y + this.size.h*0.5}, this.size, 1);
 
-        if (this.health >= 0) {
-            Draw_Text(this.main.ctx, `${this.health}`, `center`, null, {x: this.pos.x+this.size.w*0.5, y: this.pos.y+this.size.h-2}, 10, "Black", 1);
-        }
+        // if (this.health >= 0) {
+        //     Draw_Text(this.main.ctx, `${this.health}`, `center`, null, {x: this.pos.x+this.size.w*0.5, y: this.pos.y+this.size.h-2}, 10, "Black", 1);
+        // }
     }
 
     update(dt) {
@@ -521,7 +567,12 @@ class Main {
         this.blocks = [];
         this.lasers = [];
         this.blockLimits = {min_x: 1, max_x: 7, min_y: 2, max_y: 10};
-        this.colors = ["Red", "Orange", "Yellow", "Green", "Teal", "Blue"];
+        this.colors = ["Red", "Orange", "Yellow", "Green", "Teal", "White"];
+
+        this.images = {
+            enemies: Image_Loader_Load('img/Enemies.png'),
+            players: Image_Loader_Load('img/Players.png'),
+        }
 
         // Input Events
         this.key_left = false;
@@ -568,12 +619,13 @@ class Main {
     }
 
     init_objs() {
-        this.players.push(new Player(this, {x: Math.round(canvas.width*0.5-32), y: Math.round(canvas.height-12)}, {w: 64, h: 10}, "White"));
+        this.players.push(new Player(this, {x: Math.round(canvas.width*0.5-32), y: Math.round(canvas.height-10)}, {w: 32, h: 8}, "White"));
         this.players.forEach(ob => ob.init());
 
         for (let x = this.blockLimits.min_x; x < this.blockLimits.max_x; ++x) {
             for (let y = this.blockLimits.min_y; y < this.blockLimits.max_y; ++y) {
-                this.blocks.push(new Block(this, {x: 2+60 * x, y: 1+14 * y}, {w: 55, h: 12}, Random_Num(0, Random_Num(0, this.colors.length-1))));
+                let hp = Random_Num(0, Random_Num(0, this.colors.length-2));
+                this.blocks.push(new Block(this, {x: 4+45 * x, y: 4+14 * y}, {w: 45, h: 12}, {x: hp, y: hp}, hp));
             }
         }
 
