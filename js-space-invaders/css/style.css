@@ -22,3 +22,88 @@ html {
     transform: translate(-50%, -50%);
 }
 
+
+#cColors{
+    /* background: linear-gradient(0deg, rgb(16, 16, 24), rgb(52, 65, 70)); */
+    /* background-color: rgb(41, 41, 41); */
+    /* border: 1px solid rgb(0, 120, 163); */
+    /* border: 1px solid rgb(34, 34, 34); */
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#cRed{
+    background-color: 'Red';
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#cOrange{
+    background-color: 'Orange';
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#cYellow{
+    background-color: 'Yellow';
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#cGreen{
+    background-color: 'Green';
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#cTeal{
+    background-color: 'Teal';
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#cWhite{
+    background-color: 'White';
+    width:480px;
+    height:256px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+
+
+

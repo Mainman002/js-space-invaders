@@ -6,16 +6,36 @@ function Random_Num(_min, _max) {
 
 
 // Used to initialize project images
-const Image_Loader_Init = function (image_dict) {
-    this.image = image_dict;
+function Image_Loader_Init(image_dict) {
+    return image_dict;
 }
 
 
 // Used on objects to display images
-const Image_Loader_Load = function (src) {
+function Image_Loader_Load(src) {
   const image = new Image;
   image.src = src;
   return image;
+}
+
+function Color_Image(ob) {
+    ob.ctx.save();
+
+    // Draw mask to buffer
+    ob.ctx.drawImage(ob.image, ob.frame.x, ob.frame.y, 16, 8, ob.pos.x, ob.pos.y, ob.size.w, ob.size.h);
+
+    // Draw the color only where the mask exists (using source-in)
+    ob.main.cRedCtx.fillStyle = `Red`;
+    ob.main.cOrangeCtx.fillStyle = `Orange`;
+    ob.main.cYellowCtx.fillStyle = `Yellow`;
+    ob.main.cGreenCtx.fillStyle = `Green`;
+    ob.main.cTealCtx.fillStyle = `Teal`;
+    ob.main.cWhiteCtx.fillStyle = `White`;
+
+    ob.ctx.globalCompositeOperation = "source-in";
+    ob.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ob.ctx.restore();
 }
 
 
@@ -228,6 +248,7 @@ class Controller {
                     this.shoot = this.touch_state;
                     main.mouse.pressed = this.touch_state;
                     main.key_shoot = this.touch_state;
+                    main.canPress = true;
                     // main.players[0].pos.x = this.pos.x - main.players[0].size.w*0.5;
                     // console.log(this.pos.x);
                     // main.key_left = false;
@@ -253,6 +274,7 @@ class Controller {
                     this.shoot = this.mouse_state;
                     main.mouse.pressed = this.mouse_state;
                     main.key_shoot = this.mouse_state;
+                    main.canPress = true;
                     break;
             }
         }
@@ -325,7 +347,9 @@ class Controller {
 class Player {
     constructor(main, pos, size, color) {
         this.main = main;
+        this.ctx = main.ctx;
         this.image = main.images.players;
+        // this.frame = {x: 0, y: 0};
         this.states = [];
         this.currentState = this.states[0];
         this.state = 0;
@@ -343,14 +367,19 @@ class Player {
     }
 
     init() {
+        // console.log(this.image);
+
+        // this.image.style.color="#FF0000";
+        
         // console.log("Pushed Player");
     }
 
     draw() {
         // Rect(this.main.ctx, this.pos, this.size, this.color, 1);
         // Draw_Image_Simple(this.main.ctx, this.image, this.pos, this.size);
-
-        Draw_Image(this.main.ctx, this.image, {x: 0, y: 0}, {w: 16, h: 8}, {x: this.pos.x + this.size.w*0.5, y: this.pos.y + this.size.h*0.5}, this.size, 1);
+        Draw_Image(this.main.ctx, this.image, {x: 0, y: 0}, {w: 16, h: 8}, {x: this.pos.x + this.size.w*0.5, y: this.pos.y + this.size.h*0.5}, this.size, 1);        
+    
+        // Color_Image(this);
     }
 
     update(dt) {
@@ -379,19 +408,28 @@ class Player {
         //     this.state = 6
         // }
 
-        if (this.main.key_shoot) {
-            if (this.shoot_timer === 0) {
-                // this.main.lasers.push(new Laser(this.main, {x: this.pos.x - 25 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
-                // this.main.lasers.push(new Laser(this.main, {x: this.pos.x - 13 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
-                this.main.lasers.push(new Laser(this.main, {x: this.pos.x + this.size.w*0.5 - 2, y: this.pos.y-5}, {w: 4, h:8}, 1));
-                // this.main.lasers.push(new Laser(this.main, {x: this.pos.x + 13 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
-                // this.main.lasers.push(new Laser(this.main, {x: this.pos.x + 25 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
-                this.shoot_timer = this.shoot_max;
-            } else {
-                --this.shoot_timer * dt;
+        if (!this.main.canPress) {
+            if (!this.main.shoot) {
+                this.main.canPress = true;
+                console.log("Up");
             }
-        } else {
-            this.shoot_timer = 2;
+        }
+
+        if (this.main.canPress) {
+            if (this.main.key_shoot) {
+                if (this.shoot_timer === 0) {
+                    // this.main.lasers.push(new Laser(this.main, {x: this.pos.x - 25 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
+                    // this.main.lasers.push(new Laser(this.main, {x: this.pos.x - 13 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
+                    this.main.lasers.push(new Laser(this.main, {x: this.pos.x + this.size.w*0.5 - 2, y: this.pos.y-5}, {w: 4, h:8}, 1));
+                    // this.main.lasers.push(new Laser(this.main, {x: this.pos.x + 13 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
+                    // this.main.lasers.push(new Laser(this.main, {x: this.pos.x + 25 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
+                    this.shoot_timer = this.shoot_max;
+                } else {
+                    --this.shoot_timer * dt;
+                }
+            } else {
+                this.shoot_timer = 2;
+            }
         }
 
         if (!this.main.key_left && !this.main.key_right) {
@@ -483,6 +521,7 @@ class Player {
 class Laser {
     constructor(main, pos, size, dmg) {
         this.main = main;
+        this.ctx = main.ctx;
         this.damage = dmg;
         this.speed = 0.21;
         this.pos = pos;
@@ -513,8 +552,12 @@ class Laser {
 class Block {
     constructor(main, pos, size, frame, hp) {
         this.main = main;
+        this.ctx = main.ctx;
         this.image = main.images.enemies;
         this.frame = frame;
+        this.currentFrame = {x: 0, y: frame.y};
+        this.animSpeed = 0;
+        this.type = hp;
         this.health = hp;
         this.dir = 1;
         this.pos = pos;
@@ -524,13 +567,40 @@ class Block {
     }
 
     init() {
-
+        this.currentFrame.x = Random_Num(0, 4);
+        // this.frame.x = Math.round(16 * this.currentFrame.x);
+        // console.log("Enemy");
     }
 
     draw() {
-        // Rect(this.main.ctx, this.pos, this.size, this.main.colors[this.health], 1);
+        if (this.animSpeed < 5) {
+            ++this.animSpeed;
+        } else {
+            if (this.currentFrame.x < 5) {
+                this.currentFrame.x += 1;
+            } else {
+                this.currentFrame.x = 0;
+            }
+            this.animSpeed = 0;
+        }
+
+
+        // this.pos.y = Math.round(this.pos.y + -this.speed * dt);
+        this.frame.x = Math.round(16 * this.currentFrame.x);
+        this.frame.y = 8*this.type;
+
+
+        // Rect(this.main.colorsCtx, this.pos, this.size, this.main.colors[this.health], 1);
         // Draw_Image_Simple(this.main.ctx, this.image, this.pos, this.size);
-        Draw_Image(this.main.ctx, this.image, {x: 16*this.health, y: 8*this.frame.y}, {w: 16, h: 8}, {x: this.pos.x + this.size.w*0.5, y: this.pos.y + this.size.h*0.5}, this.size, 1);
+        // Composite_Color(this.main, this, this.color, {x: this.pos.x, y: this.pos.y, w: this.size.w, h: this.size.h})
+        // Draw_Image(this.ctx, this.image, {x: 16*this.health, y: 8*this.frame.y}, {w: 16, h: 8}, {x: this.pos.x + this.size.w*0.5, y: this.pos.y + this.size.h*0.5}, this.size, 1);
+        
+        
+        // this.ctx.fillStyle = this.color;
+        // this.ctx.globalCompositeOperation = "source-in";
+        // this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Color_Image(this.main.ctx, this);
 
         // if (this.health >= 0) {
         //     Draw_Text(this.main.ctx, `${this.health}`, `center`, null, {x: this.pos.x+this.size.w*0.5, y: this.pos.y+this.size.h-2}, 10, "Black", 1);
@@ -538,6 +608,39 @@ class Block {
     }
 
     update(dt) {
+
+        switch (this.health) {
+            case 0:
+                this.ctx = this.main.cRedCtx;
+                Color_Image(this);
+            break;
+
+            case 1:
+                this.ctx = this.main.cOrangeCtx;
+                Color_Image(this);
+            break;
+
+            case 2:
+                this.ctx = this.main.cYellowCtx;
+                Color_Image(this);
+            break;
+
+            case 3:
+                this.ctx = this.main.cGreenCtx;
+                Color_Image(this);
+            break;
+
+            case 4:
+                this.ctx = this.main.cTealCtx;
+                Color_Image(this);
+            break;
+
+            case 5:
+                this.ctx = this.main.cWhiteCtx;
+                Color_Image(this);
+            break;
+        }
+
         if (this.dir === 1) {
             ++this.pos.x * this.dir;
         } else {
@@ -563,6 +666,15 @@ class Block {
 class Main {
     constructor() {
         this.ctx = canvas.getContext('2d');
+        this.colorsCtx = cColors.getContext('2d');
+
+        this.cRedCtx = cRed.getContext('2d');
+        this.cOrangeCtx = cOrange.getContext('2d');
+        this.cYellowCtx = cYellow.getContext('2d');
+        this.cGreenCtx = cGreen.getContext('2d');
+        this.cTealCtx = cTeal.getContext('2d');
+        this.cWhiteCtx = cWhite.getContext('2d');
+
         this.window_size = {w: 480, h: 256};
         this.game_state = "MainMenu";
         this.start_btn = false;
@@ -578,6 +690,7 @@ class Main {
         }
 
         // Input Events
+        this.canPress = true;
         this.key_left = false;
         this.key_right = false;
         this.key_up = false;
@@ -597,6 +710,27 @@ class Main {
         Screen_Init(this, canvas);
         Screen_Resize(this, this.ctx, canvas);
 
+        Screen_Init(this, cColors);
+        Screen_Resize(this, this.colorsCtx, cColors);
+
+        Screen_Init(this, cRed);
+        Screen_Resize(this, this.cRedCtx, cRed);
+
+        Screen_Init(this, cOrange);
+        Screen_Resize(this, this.cOrangeCtx, cOrange);
+
+        Screen_Init(this, cYellow);
+        Screen_Resize(this, this.cYellowCtx, cYellow);
+
+        Screen_Init(this, cGreen);
+        Screen_Resize(this, this.cGreenCtx, cGreen);
+
+        Screen_Init(this, cTeal);
+        Screen_Resize(this, this.cTealCtx, cTeal);
+
+        Screen_Init(this, cWhite);
+        Screen_Resize(this, this.cWhiteCtx, cWhite);
+
         // console.log("Loaded Main");
     }
 
@@ -609,8 +743,9 @@ class Main {
         // this.blockLimits = {min_x: 1, max_x: 7, min_y: 2, max_y: 12};
         this.blockLimits = {min_x: Random_Num(0, 3), max_x: Random_Num(4, 7), min_y: Random_Num(1, 4), max_y: Random_Num(5, 10)};
         Random_Num(0, this.colors.length-1)
-
+        
         // Input Events
+        this.canPress = false;
         this.key_left = false;
         this.key_right = false;
         this.key_up = false;
@@ -631,6 +766,8 @@ class Main {
                 this.blocks.push(new Block(this, {x: 36 * x, y: 18 * y}, {w: 32, h: 16}, {x: hp, y: hp}, hp));
             }
         }
+
+        this.blocks.forEach(ob => ob.init());
 
         // console.log("Reset_Game");
     }
@@ -723,6 +860,16 @@ window.addEventListener('load', (e) => {
     
     window.addEventListener('resize', (e) => {
         Screen_Resize(main, main.ctx, canvas);
+        Screen_Resize(main, main.colorsCtx, cColors);
+
+        Screen_Resize(main, main.cRedCtx, cRed);
+        Screen_Resize(main, main.cOrangeCtx, cOrange);
+        Screen_Resize(main, main.cYellowCtx, cYellow);
+        Screen_Resize(main, main.cGreenCtx, cGreen);
+        Screen_Resize(main, main.cTealCtx, cTeal);
+        Screen_Resize(main, main.cWhiteCtx, cWhite);
+
+
     });
 
     // Update loop ---------------------------------------
@@ -747,6 +894,18 @@ window.addEventListener('load', (e) => {
         if (!timeStamp) timeStamp = 0;
 
         main.ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        main.cRedCtx.clearRect(0, 0, canvas.width, canvas.height);
+        main.cOrangeCtx.clearRect(0, 0, canvas.width, canvas.height);
+        main.cYellowCtx.clearRect(0, 0, canvas.width, canvas.height);
+        main.cGreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+        main.cTealCtx.clearRect(0, 0, canvas.width, canvas.height);
+        main.cWhiteCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+        // main.colorsCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Composite_Color(canvas, cColors);
 
         const dt = timeStamp - lastTime;
         lastTime = timeStamp;
