@@ -99,7 +99,7 @@ function Screen_Resize(main, _ctx, _canvas){
     const border = 50;
     
     const aspectList = {
-        box:{w:5, h:5},
+        box:{w:5, h:4.5},
         wide:{w:6.5, h:4}
     }
 
@@ -348,7 +348,9 @@ class Player {
 
     draw() {
         // Rect(this.main.ctx, this.pos, this.size, this.color, 1);
-        Draw_Image_Simple(this.main.ctx, this.image, this.pos, this.size);
+        // Draw_Image_Simple(this.main.ctx, this.image, this.pos, this.size);
+
+        Draw_Image(this.main.ctx, this.image, {x: 0, y: 0}, {w: 16, h: 8}, {x: this.pos.x + this.size.w*0.5, y: this.pos.y + this.size.h*0.5}, this.size, 1);
     }
 
     update(dt) {
@@ -381,7 +383,7 @@ class Player {
             if (this.shoot_timer === 0) {
                 // this.main.lasers.push(new Laser(this.main, {x: this.pos.x - 25 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
                 // this.main.lasers.push(new Laser(this.main, {x: this.pos.x - 13 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
-                this.main.lasers.push(new Laser(this.main, {x: this.pos.x + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
+                this.main.lasers.push(new Laser(this.main, {x: this.pos.x + this.size.w*0.5 - 2, y: this.pos.y-5}, {w: 4, h:8}, 1));
                 // this.main.lasers.push(new Laser(this.main, {x: this.pos.x + 13 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
                 // this.main.lasers.push(new Laser(this.main, {x: this.pos.x + 25 + this.size.w*0.5, y: this.pos.y-5}, {w: 4, h:8}, 1));
                 this.shoot_timer = this.shoot_max;
@@ -499,6 +501,7 @@ class Laser {
 
     update(dt) {
         this.pos.y = Math.round(this.pos.y + -this.speed * dt); 
+        this.pos.x = Math.round(this.pos.x); 
         
         if (this.pos.y < 0) {
             this.alive = false;
@@ -604,7 +607,7 @@ class Main {
         this.blocks = [];
         this.lasers = [];
         // this.blockLimits = {min_x: 1, max_x: 7, min_y: 2, max_y: 12};
-        this.blockLimits = {min_x: Random_Num(0, 3), max_x: Random_Num(4, 7), min_y: Random_Num(2, 5), max_y: Random_Num(6, 12)};
+        this.blockLimits = {min_x: Random_Num(0, 3), max_x: Random_Num(4, 7), min_y: Random_Num(1, 4), max_y: Random_Num(5, 10)};
         Random_Num(0, this.colors.length-1)
 
         // Input Events
@@ -619,13 +622,13 @@ class Main {
     }
 
     init_objs() {
-        this.players.push(new Player(this, {x: Math.round(canvas.width*0.5-32), y: Math.round(canvas.height-10)}, {w: 32, h: 8}, "White"));
+        this.players.push(new Player(this, {x: Math.round(canvas.width*0.5-32), y: Math.round(canvas.height-17)}, {w: 32, h: 16}, "White"));
         this.players.forEach(ob => ob.init());
 
         for (let x = this.blockLimits.min_x; x < this.blockLimits.max_x; ++x) {
             for (let y = this.blockLimits.min_y; y < this.blockLimits.max_y; ++y) {
                 let hp = Random_Num(0, Random_Num(0, this.colors.length-2));
-                this.blocks.push(new Block(this, {x: 4+45 * x, y: 4+14 * y}, {w: 45, h: 12}, {x: hp, y: hp}, hp));
+                this.blocks.push(new Block(this, {x: 36 * x, y: 18 * y}, {w: 32, h: 16}, {x: hp, y: hp}, hp));
             }
         }
 
